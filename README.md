@@ -15,6 +15,16 @@ CraftDeck; tamamen ücretsiz, kendi bilgisayarınızda çalışan bir Minecraft 
 
 > CraftDeck yalnızca `127.0.0.1` üzerinde dinler. Arayüzde kimlik doğrulama yoktur; bu nedenle uygulamayı internete açmayın. Dışarıya açılacak olan yalnızca Minecraft sunucu portudur (tünel aracılığıyla).
 
+## Ekran görüntüleri
+
+<p align="center">
+  <img src="docs/screenshots/overview.png" alt="Sunucu genel bakış" width="49%">
+  <img src="docs/screenshots/store.png" alt="Modrinth mağazası" width="49%">
+</p>
+<p align="center">
+  <img src="docs/screenshots/settings.png" alt="Sunucu ayarları" width="70%">
+</p>
+
 ---
 
 ## Neden bu stack?
@@ -104,6 +114,7 @@ Kurulumdan sonra CraftDeck'i yeniden başlat; sağlayıcı **Tünel** sekmesinde
 ├── tunnel-setup.bat / .sh    # ngrok / Playit.gg kurulum betiği
 ├── How Can I Use.md          # Ayrıntılı kullanım rehberi
 ├── LICENSE                   # MIT lisansı
+├── docs/screenshots/         # README ekran görüntüleri
 ├── app/
 │   ├── main.py               # HTTP sunucusu, tarayıcı açılışı, kapanış temizliği
 │   ├── api.py                # JSON API yönlendirme + multipart yükleme
