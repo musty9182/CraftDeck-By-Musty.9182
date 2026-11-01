@@ -7,6 +7,7 @@ import platform
 import re
 import shutil
 import stat
+import subprocess
 import tarfile
 import threading
 import time
@@ -15,7 +16,7 @@ from typing import Any
 
 from . import config
 from .store import Store
-from .util import ApiError, AppError, download_file
+from .util import ApiError, AppError, decode_process_text, download_file
 
 _java_exe = "java.exe" if config.IS_WINDOWS else "java"
 _runtime_cache: dict[str, Any] = {"at": 0.0, "items": []}
@@ -46,14 +47,14 @@ def _probe_java(path: pathlib.Path | str) -> dict[str, Any] | None:
     if not path.is_file():
         return None
     try:
-        proc = __import__("subprocess").run(
+        proc = subprocess.run(
             [str(path), "-XshowSettings:properties", "-version"],
-            capture_output=True, text=True, timeout=12,
-            creationflags=getattr(__import__("subprocess"), "CREATE_NO_WINDOW", 0) if config.IS_WINDOWS else 0,
+            capture_output=True, timeout=12,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if config.IS_WINDOWS else 0,
         )
     except (OSError, Exception):
         return None
-    output = (proc.stderr or "") + "\n" + (proc.stdout or "")
+    output = decode_process_text(proc.stderr) + "\n" + decode_process_text(proc.stdout)
     version_match = re.search(r"java\.version\s*=\s*(\S+)", output)
     vendor_match = re.search(r"java\.vendor\s*=\s*(.+)", output)
     home_match = re.search(r"java\.home\s*=\s*(.+)", output)

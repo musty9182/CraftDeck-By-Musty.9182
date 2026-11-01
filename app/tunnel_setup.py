@@ -10,7 +10,7 @@ import webbrowser
 from . import config, tunnel
 from .store import Store
 from .tunnel import CLAIM_RE
-from .util import terminate_process_tree
+from .util import decode_process_text, terminate_process_tree
 
 
 def _say(text: str = "") -> None:
@@ -54,8 +54,8 @@ def setup_ngrok() -> None:
     _say("ngrok istemcisi indiriliyor…")
     exe = tunnel.ensure_ngrok(_say)
     try:
-        result = subprocess.run([str(exe), "version"], capture_output=True, text=True, timeout=30)
-        version = (result.stdout or result.stderr or "").strip().splitlines()
+        result = subprocess.run([str(exe), "version"], capture_output=True, timeout=30)
+        version = decode_process_text(result.stdout or result.stderr).strip().splitlines()
         if version:
             _say(f"ngrok sürümü: {version[0].strip()}")
     except Exception:

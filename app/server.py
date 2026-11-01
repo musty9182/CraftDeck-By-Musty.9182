@@ -18,7 +18,7 @@ from .modrinth import Modrinth, is_client_only
 from .store import Store, now_iso
 from .tunnel import TunnelManager
 from .util import (
-    AppError, download_file, free_port, http_json, port_in_use, read_json,
+    AppError, decode_process_text, download_file, free_port, http_json, port_in_use, read_json,
     read_properties, safe_join, terminate_process_tree, update_properties, write_json,
 )
 
@@ -361,7 +361,7 @@ class ServerRuntime:
                 self._proc = subprocess.Popen(
                     cmd, cwd=str(self.dir),
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                    text=True, encoding="utf-8", errors="replace", bufsize=1,
+                    bufsize=0,
                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if config.IS_WINDOWS else 0,
                     start_new_session=not config.IS_WINDOWS,
                 )
@@ -378,7 +378,7 @@ class ServerRuntime:
         assert proc.stdout is not None
         try:
             for raw in proc.stdout:
-                line = raw.rstrip("\r\n")
+                line = decode_process_text(raw).rstrip("\r\n")
                 if not line:
                     continue
                 with self._lock:
@@ -445,7 +445,7 @@ class ServerRuntime:
         self.log("⏹ Durdurma isteği gönderiliyor ('stop')…", "system")
         try:
             if proc.stdin:
-                proc.stdin.write("stop\n")
+                proc.stdin.write(b"stop\n")
                 proc.stdin.flush()
         except (OSError, ValueError):
             pass
@@ -495,7 +495,7 @@ class ServerRuntime:
         if not proc or proc.poll() is not None or not proc.stdin:
             raise AppError("Sunucu çalışmıyor")
         try:
-            proc.stdin.write(command + "\n")
+            proc.stdin.write((command + "\n").encode("utf-8"))
             proc.stdin.flush()
         except (OSError, ValueError) as exc:
             raise AppError("Komut gönderilemedi", detail=str(exc)) from exc
@@ -887,7 +887,7 @@ class ServerRuntime:
             if proc and proc.poll() is None:
                 try:
                     if proc.stdin:
-                        proc.stdin.write("stop\n")
+                        proc.stdin.write(b"stop\n")
                         proc.stdin.flush()
                         time.sleep(2)
                 except Exception:

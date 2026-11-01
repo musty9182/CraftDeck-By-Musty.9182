@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 from typing import Any, Callable
 
 from . import config
-from .util import ApiError, AppError, download_file, http_get_text, http_json
+from .util import ApiError, AppError, decode_process_text, download_file, http_get_text, http_json
 
 LogFn = Callable[[str], None]
 ProgressFn = Callable[[float, str], None]
@@ -42,7 +42,7 @@ def run_streamed(cmd: list[str], cwd: pathlib.Path, log: LogFn, *,
     log("$ " + " ".join(str(part) for part in cmd))
     proc = subprocess.Popen(
         cmd, cwd=str(cwd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        stdin=subprocess.DEVNULL, text=True, encoding="utf-8", errors="replace",
+        stdin=subprocess.DEVNULL, bufsize=0,
         env=env, creationflags=_creation_flags(),
     )
     tail: list[str] = []
@@ -50,7 +50,7 @@ def run_streamed(cmd: list[str], cwd: pathlib.Path, log: LogFn, *,
     assert proc.stdout is not None
     try:
         for line in proc.stdout:
-            text = line.rstrip()
+            text = decode_process_text(line).rstrip()
             if text:
                 log(text)
                 tail.append(text)

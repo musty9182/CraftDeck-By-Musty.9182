@@ -315,6 +315,17 @@ def temp_path(suffix: str = "") -> pathlib.Path:
     return pathlib.Path(name)
 
 
+def decode_process_text(data: bytes | None) -> str:
+    if not data:
+        return ""
+    for encoding in ("utf-8", "cp1254", "cp1252", "latin-1"):
+        try:
+            return data.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return data.decode("utf-8", errors="replace")
+
+
 def terminate_process_tree(proc, *, timeout: float = 8.0) -> None:
     if proc is None or proc.poll() is not None:
         return

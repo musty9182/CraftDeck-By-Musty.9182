@@ -13,7 +13,7 @@ from collections import deque
 from typing import Any, Callable
 
 from . import config
-from .util import ApiError, AppError, download_file, free_port, http_json, terminate_process_tree
+from .util import ApiError, AppError, decode_process_text, download_file, free_port, http_json, terminate_process_tree
 
 ADDRESS_RE = re.compile(
     r"(?:(?:tcp|tls)://)?"
@@ -260,10 +260,7 @@ class TunnelManager:
             "stdout": subprocess.PIPE,
             "stderr": subprocess.STDOUT,
             "stdin": subprocess.DEVNULL,
-            "text": True,
-            "encoding": "utf-8",
-            "errors": "replace",
-            "bufsize": 1,
+            "bufsize": 0,
             "creationflags": _creation_flags(),
         }
         if not config.IS_WINDOWS:
@@ -275,7 +272,7 @@ class TunnelManager:
         if not proc or not proc.stdout:
             return
         for line in proc.stdout:
-            text = line.rstrip()
+            text = decode_process_text(line).rstrip()
             if not text:
                 continue
             self._log(text)
