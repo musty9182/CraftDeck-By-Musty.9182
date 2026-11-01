@@ -69,33 +69,62 @@ def setup_ngrok() -> None:
         _say("Token girilmedi. Daha sonra uygulamadaki Tünel sekmesinden ekleyebilirsin.")
 
 
+def _playit_run(exe, *args: str, timeout: float = 30) -> tuple[subprocess.CompletedProcess | None, str]:
+    try:
+        result = subprocess.run(
+            [str(exe), *args],
+            capture_output=True, timeout=timeout,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if config.IS_WINDOWS else 0,
+        )
+    except Exception as exc:
+        return None, str(exc)
+    return result, (decode_process_text(result.stdout) + decode_process_text(result.stderr))
+
+
+def _playit_linked(exe) -> bool:
+    _, text = _playit_run(exe, "status")
+    return "secret configured: true" in text.lower()
+
+
+def _playit_start(exe) -> None:
+    _, text = _playit_run(exe, "start", timeout=60)
+    for line in text.strip().splitlines():
+        _say("  " + line.strip())
+
+
 def setup_playit() -> None:
     _say()
     _say("Playit.gg ajanı indiriliyor…")
     exe = tunnel.ensure_playit(_say)
     _say()
-    _say("İlk kurulum başlatılıyor. Tarayıcıda açılan bağlantıdan hesabını bağla.")
+    if _playit_linked(exe):
+        _say("Bu bilgisayar zaten bir Playit hesabına bağlı; yeniden claim gerekmiyor.")
+        _playit_start(exe)
+        _save_preference("playit")
+        _say()
+        _say("Tünel yönlendirmesi: https://playit.gg/account/tunnels")
+        _say("Panelde Minecraft Java tüneli oluşturup yerel portu sunucunun portuna ayarla.")
+        return
+    _say("Playit.gg hesap bağlantısı başlatılıyor…")
     kwargs = {
         "stdout": subprocess.PIPE,
         "stderr": subprocess.STDOUT,
         "stdin": subprocess.DEVNULL,
-        "text": True,
-        "encoding": "utf-8",
-        "errors": "replace",
-        "bufsize": 1,
+        "bufsize": 0,
         "creationflags": getattr(subprocess, "CREATE_NO_WINDOW", 0) if config.IS_WINDOWS else 0,
     }
     if not config.IS_WINDOWS:
         kwargs["start_new_session"] = True
-    proc = subprocess.Popen([str(exe), "--stdout"], **kwargs)
+    proc = subprocess.Popen([str(exe), "setup"], **kwargs)
     claim = {"url": ""}
+    opened = {"done": False}
 
     def pump() -> None:
         stream = proc.stdout
         if stream is None:
             return
         for line in stream:
-            text = line.rstrip()
+            text = decode_process_text(line).rstrip()
             if not text:
                 continue
             _say("  " + text)
@@ -104,24 +133,39 @@ def setup_playit() -> None:
                 claim["url"] = match.group(0)
 
     threading.Thread(target=pump, daemon=True).start()
-    deadline = time.time() + 20
-    while time.time() < deadline and not claim["url"] and proc.poll() is None:
-        time.sleep(0.25)
-    if claim["url"]:
+    deadline = time.time() + 90
+    while time.time() < deadline and proc.poll() is None:
+        if claim["url"] and not opened["done"]:
+            opened["done"] = True
+            _say()
+            _say("Bağlantı: " + claim["url"])
+            try:
+                webbrowser.open(claim["url"])
+            except Exception:
+                pass
+            _say("Tarayıcıda hesabını bağla ve agent oluştur. Bu pencere otomatik devam eder.")
+        time.sleep(0.3)
+    if not claim["url"] and proc.poll() is None:
         _say()
-        _say("Bağlantı: " + claim["url"])
-        try:
-            webbrowser.open(claim["url"])
-        except Exception:
-            pass
-        _ask("Hesabını bağladıktan sonra Enter'a bas…")
+        _say("Claim bağlantısı görünmedi. Tarayıcıdan https://playit.gg adresine girip tekrar dene.")
+    wait_until = time.time() + 300
+    try:
+        while time.time() < wait_until and proc.poll() is None:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        _say("Kurulum penceresi kapatılıyor.")
+    if proc.poll() is None:
+        terminate_process_tree(proc)
+    if _playit_linked(exe):
+        _playit_start(exe)
+        _say()
+        _say("Playit.gg bağlantısı tamamlandı.")
     else:
         _say()
-        _say("Claim bağlantısı görünmedi; ajan zaten yapılandırılmış olabilir.")
-        _ask("Devam etmek için Enter'a bas…")
-    terminate_process_tree(proc)
+        _say("Bağlantı doğrulanamadı. playit-setup betiğini yönetici olarak çalıştırıp tekrar dene.")
     _save_preference("playit")
-    _say("Playit.gg hazır. Uygulamada Tünel > Playit.gg seçip başlat.")
+    _say("Tünel yönlendirmesi: https://playit.gg/account/tunnels")
+    _say("Panelde Minecraft Java tüneli oluşturup yerel portu sunucunun portuna ayarla.")
 
 
 def _choose(argument: str) -> str:

@@ -275,6 +275,8 @@ class TunnelManager:
             text = decode_process_text(line).rstrip()
             if not text:
                 continue
+            if "local timestamp if over 10 seconds off" in text:
+                continue
             self._log(text)
             self._scan_line(text)
             if self._stopping:
@@ -325,6 +327,14 @@ class TunnelManager:
 
     def _start_playit(self, exe: pathlib.Path) -> None:
         self._log("Playit.gg ajanı başlatılıyor (mevcut hesap yapılandırması kullanılır)…")
+        try:
+            subprocess.run(
+                [str(exe), "start"],
+                capture_output=True, timeout=30,
+                creationflags=_creation_flags(),
+            )
+        except Exception:
+            pass
         self._spawn([str(exe), "--stdout"])
         self._log("Playit tünelleri playit.gg panelinden bu sunucu portuna yönlendirilmelidir.", "info")
         self._log("Panel: https://playit.gg/account/tunnels", "info")

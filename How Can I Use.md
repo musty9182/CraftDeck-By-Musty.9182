@@ -77,14 +77,14 @@ ngrok ücretsiz planda tünel adresi her başlatmada değişebilir.
 ### Seçenek 2: Playit.gg
 
 1. Menüde `2` yaz.
-2. Betik Playit ajanını indirir ve ilk kurulumu başlatır.
-3. Konsolda bir **claim** bağlantısı görünür ve tarayıcıda açılır:
+2. Betik Playit ajanını indirir. Ajan bu bilgisayarda daha önce bir hesaba bağlandıysa bunu algılar ve yeniden claim istemez.
+3. Bağlı değilse `playit setup` çalışır; konsolda bir **claim** bağlantısı görünür ve tarayıcıda açılır:
    `https://playit.gg/claim/...`
-4. Bağlantıdan Playit hesabına giriş yapıp cihazı bağla.
-5. Konsola dönüp **Enter**'a bas. Ajan kapanır ve hesap bilgisi bu bilgisayarda saklanır.
-6. Playit panelinde **Minecraft Java** türünde bir tünel oluştur ve hedef portu sunucunun portu yap.
+4. Bağlantıdan Playit hesabına giriş yapıp agent oluştur. Kurulum penceresi otomatik devam eder.
+5. Playit panelinde **Minecraft Java** türünde bir tünel oluştur. Yerel adres `127.0.0.1`, yerel port sunucunun portu (varsayılan `25565`) olmalı.
+6. Panelde verilen genel adresi kopyala. CraftDeck otomatik yakalayamazsa **Tünel** sekmesindeki **Adresi elle gir** alanına yapıştırıp kaydet.
 
-Playit'in kendi panelinden tünel yönlendirmesi yapman gerekir; CraftDeck ajanı çalıştırır ve adresi yakalar.
+Playit ajanı Windows'ta arka plan servisi olarak çalışır; CraftDeck yalnızca servise bağlanıp günlüğü gösterir. Tünel yönlendirmesi mutlaka Playit panelinden yapılır.
 
 ### Kurulumdan sonra
 
@@ -214,7 +214,8 @@ data/servers/<sunucu-id>/
 | `Python 3.10+ bulunamadı` | Python'u kur ve PATH'e ekle. Terminali kapatıp yeniden aç. |
 | Arayüz açılmıyor | Terminaldeki adresi elle aç. Port doluysa `python run.py --port 8770` kullan. |
 | ngrok başlamıyor | Authtoken girildiğinden emin ol. Ücretsiz planda eşzamanlı tünel sınırı vardır. |
-| Playit adresi görünmüyor | `tunnel-setup.bat` ile hesabı bağla; panelden tüneli sunucu portuna yönlendir. |
+| Playit adresi görünmüyor | `tunnel-setup.bat` ile hesabı bağla; panelden tüneli sunucu portuna yönlendir. Adresi **Tünel → Adresi elle gir** alanına yapıştır. |
+| Playit: `local timestamp if over 10 seconds off` | Bilgisayar saati 10 saniyeden fazla sapıyor. Ayarlar → Saat ve dil → Tarih ve saat → **Şimdi eşitle**. Yönetici terminalde `w32tm /resync` de kullanılabilir. |
 | Sunucuya dışarıdan bağlanılamıyor | Yerel sunucu çalışıyor mu, tünel adresi doğru mu, port eşleşiyor mu kontrol et. |
 | Java bulunamadı | **Ayarlar → Java** bölümünden uygun sürümü indir. |
 | Motor kurulumu başarısız | İnterneti kontrol et, işi iptal edip yeniden dene. Ayrıntılar iş loglarında. |
