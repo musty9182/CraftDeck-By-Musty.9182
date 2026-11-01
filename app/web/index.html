@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>CraftDeck — Yerel Minecraft Sunucu Stüdyosu</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d141c'/%3E%3Cpath d='M32 8 55 20v24L32 56 9 44V20z' fill='none' stroke='%235eead4' stroke-width='3'/%3E%3Cpath d='M32 8v24l23-12M32 32 9 20m23 12v24' fill='none' stroke='%2338bdf8' stroke-width='3'/%3E%3C/svg%3E">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar" aria-label="Sunucular">
+      <div class="brand">
+        <a class="brand-mark" href="#/welcome" aria-label="CraftDeck ana sayfa">
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M32 6 57 20v24L32 58 7 44V20z" fill="none" stroke="currentColor" stroke-width="3"/>
+            <path d="M32 6v26l25-12M32 32 7 20m25 12v26" fill="none" stroke="currentColor" stroke-width="3" opacity=".65"/>
+          </svg>
+        </a>
+        <div class="brand-text">
+          <strong>CraftDeck</strong>
+          <span>Sunucu Stüdyosu</span>
+        </div>
+      </div>
+
+      <div class="sidebar-head">
+        <span>Sunucularım</span>
+        <button class="icon-btn" data-action="refresh-servers" title="Sunucuları yenile" aria-label="Sunucuları yenile">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <div class="server-list" id="serverList">
+        <div class="sidebar-loading">Yükleniyor…</div>
+      </div>
+
+      <div class="sidebar-actions">
+        <button class="btn primary block" data-action="new-server">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Yeni Sunucu
+        </button>
+        <button class="btn ghost block" data-action="upload-mrpack-create">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          .mrpack Yükle
+        </button>
+      </div>
+
+      <div class="sidebar-footer" id="sidebarFooter"></div>
+    </aside>
+
+    <div class="workspace">
+      <div class="offline-banner" id="offlineBanner" hidden>
+        <strong>Bağlantı kesildi.</strong>
+        <span>CraftDeck sunucusuna ulaşılamıyor — yeniden bağlanmayı deniyorum…</span>
+      </div>
+      <header class="topbar" id="topbar"></header>
+      <nav class="tabs" id="tabs" aria-label="Sunucu sekmeleri"></nav>
+      <main class="view" id="view" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <div id="modalRoot"></div>
+  <div id="jobTray" class="job-tray" aria-live="polite"></div>
+
+  <input type="file" id="mrpackInput" accept=".mrpack,application/zip" hidden>
+  <script src="/core.js"></script>
+  <script src="/servers.js"></script>
+  <script src="/console.js"></script>
+  <script src="/store.js"></script>
+  <script src="/content.js"></script>
+  <script src="/settings.js"></script>
+  <script src="/tunnel.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
